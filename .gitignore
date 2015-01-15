@@ -21,3 +21,6 @@ object_files/*
 c-examples/Makefile
 c-src/Makefile
 dist/*
+.cabal-sandbox/*
+cabal.sandbox.config
+*.swp

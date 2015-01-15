@@ -112,14 +112,16 @@ else
 	SONAME_FLAGS= -shared -Wl,-soname
 endif
 .SILENT:
-all: libfltkc.a libfltkc.$(SHARED_EXT)
+#all: libfltkc.a libfltkc.$(SHARED_EXT)
+all: libfltkc.a 
 .SUFFIXES: .cpp .o
 .cpp.o:
 	test -d $(STATIC_OBJECT_FILES) || mkdir $(STATIC_OBJECT_FILES)
 	test -d $(SHARED_OBJECT_FILES) || mkdir $(SHARED_OBJECT_FILES)
 	@echo "*** Compiling $<..."
 	$(CXXSTATIC) -c $^ -o $(STATIC_OBJECT_FILES)/$@
-	$(CXXSHARED) -c -fPIC $^ -o $(SHARED_OBJECT_FILES)/$@
+	#$(CXXSHARED) -c -fPIC $^ -o $(SHARED_OBJECT_FILES)/$@
+	$(CXXSHARED) -c $^ -o $(SHARED_OBJECT_FILES)/$@
 libfltkc.a : $(OBJECTS)
 	test -d $(LIBDIR) || mkdir $(LIBDIR)
 	@echo "*** Linking $@..."

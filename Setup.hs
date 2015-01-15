@@ -26,6 +26,10 @@ import qualified Distribution.Simple.GHC  as GHC
 import qualified Distribution.Simple.JHC  as JHC
 import qualified Distribution.Simple.LHC  as LHC
 import qualified Distribution.Simple.UHC  as UHC
+import System.Environment (getEnvironment)
+import Distribution.Compat.Exception (catchIO)
+import Control.Exception (throwIO)
+import System.IO.Error (isDoesNotExistError)
 
 main = defaultMainWithHooks autoconfUserHooks {
          preConf = myPreConf,
@@ -34,11 +38,30 @@ main = defaultMainWithHooks autoconfUserHooks {
          copyHook = copyCBindings
        }
 
+handleNoWindowsSH :: IO a -> IO a
+handleNoWindowsSH action
+    | buildOS /= Windows
+    = action
+
+    | otherwise
+    = action
+        `catchIO` \ioe -> if isDoesNotExistError ioe
+                            then die notFoundMsg
+                            else throwIO ioe
+    where notFoundMsg = "The package has a './configure' script. This requires a "
+                        ++ "Unix compatibility toolchain such as MinGW+MSYS or Cygwin."
+rawShellSystemExit :: Verbosity -> FilePath -> [String] -> IO ()
+rawShellSystemExit v f as = do
+    env <- getEnvironment
+    rawSystemExitWithEnv v "sh" (f : as) env
+
 myPreConf args flags = do
    putStrLn "Running autoheader ..."
-   rawSystemExit normal "autoheader" []
+   {-rawSystemExit normal "autoheader" []-}
+   rawShellSystemExit normal "autoheader" []
    putStrLn "Running autoconf ..."
-   rawSystemExit normal "autoconf" []
+   {-rawSystemExit normal "autoconf" []-}
+   rawShellSystemExit normal "autoconf" []
    preConf autoconfUserHooks args flags
 
 fltkcdir = unsafePerformIO getCurrentDirectory ++ "/c-lib"

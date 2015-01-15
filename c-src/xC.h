@@ -4,8 +4,20 @@
 // always include the FL/*.H headers before local headers
 // X is included transitively and needed for
 // the callback mechanism included below to work.
+
+//#if defined(WIN32)
+	//#warning "WIN32 defined"
+//#endif
+
 #include "FL/Fl.H"
-#include "FL/x.H"
+#ifndef FL_INTERNALS
+  #define FL_INTERNALS
+  #include "FL/x.H"
+  #undef FL_INTERNALS
+#else
+  #include "FL/x.H"
+#endif
+
 #include "Fl_CallbackC.h"
 EXPORT {
 #endif
